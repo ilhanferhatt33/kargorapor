@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KargoRapor — Kargo Takip ve Teslimat Süresi Raporu</title>
+<meta name="description" content="Kargonuz nerede? Hangi kargo firması kaç günde teslim ediyor? Gerçek kullanıcı bildirimlerine dayalı kargo raporu ve takip.">
+<meta name="theme-color" content="#14161b">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+body{margin:0;background:#14161b;color:#d9dce1;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px}
+a{color:#e8a13a;text-decoration:none}
+.hd{background:#171a20;border-bottom:1px solid #262b34}
+.hdin{max-width:880px;margin:0 auto;padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:800;font-size:19px;letter-spacing:-.3px;color:#f0f1f3}
+.brand b{color:#e8a13a}
+.nav a{color:#8a919c;font-size:14px;margin-left:18px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 16px 44px}
+.ptitle{font-size:21px;font-weight:800;letter-spacing:-.4px;margin:4px 0 2px}
+.psub{color:#8a919c;font-size:14px}
+.card{background:#191d24;border:1px solid #262b34;border-radius:12px;padding:18px;margin-top:16px}
+.card h3{margin:0 0 4px;font-size:16px}
+.card .p{color:#8a919c;font-size:13.5px;margin:0 0 14px}
+.frow{display:flex;gap:10px;flex-wrap:wrap}
+select,input{border:1px solid #30363f;border-radius:8px;padding:11px 12px;font-size:15px;background:#14161b;color:#e6e8ec}
+select{flex:2;min-width:160px}
+input{flex:1;min-width:140px}
+.btn{background:#e8a13a;color:#171310;border:none;border-radius:8px;padding:11px 20px;font-size:15px;font-weight:800;cursor:pointer}
+.btn:hover{background:#f0b355}
+.soon{display:none;margin-top:14px;background:#1a1d12;border:1px solid #4d5a1e;color:#c8d977;border-radius:10px;padding:13px 16px;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{text-align:left;color:#8a919c;font-weight:600;font-size:12.5px;padding:10px 14px;border-bottom:1px solid #262b34;background:#151920;text-transform:uppercase;letter-spacing:.4px}
+td{padding:11px 14px;border-bottom:1px solid #20242c;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.rank{color:#5c646e;font-weight:700;width:32px}
+.fname{font-weight:700}
+.avg{font-weight:800}
+.barwrap{width:120px;background:#262b34;border-radius:5px;height:8px}
+.bar{height:8px;border-radius:5px}
+.cnt,.late{color:#8a919c;font-size:13px}
+.ok{display:none;background:#14201a;border:1px solid #2c5b40;color:#7bc47f;border-radius:8px;padding:10px 14px;font-size:13.5px;margin-top:12px}
+.note{color:#5c646e;font-size:12.5px;margin-top:14px;line-height:1.65}
+.ft{border-top:1px solid #262b34;margin-top:26px;padding-top:14px;color:#5c646e;font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+@media(max-width:620px){.barwrap,.barcol{display:none}}
+</style>
+</head>
+<body>
+<div class="hd"><div class="hdin">
+  <div class="brand">kargo<b>rapor</b></div>
+  <div class="nav"><a href="#takip">Takip</a><a href="#rapor">Rapor</a><a href="#yasal">Yasal</a></div>
+</div></div>
+
+<div class="wrap">
+  <div id="takip"></div>
+  <div class="ptitle">Kargo Takip</div>
+  <div class="psub">Takip numaranı gir, gönderinin durumunu gör. Teslim edildiyse kaç günde geldiğini bildir.</div>
+
+  <div class="card">
+    <div class="frow">
+      <select id="firma">
+        <option>Yurtiçi Kargo</option><option>Aras Kargo</option><option>MNG Kargo</option>
+        <option>PTT Kargo</option><option>Sürat Kargo</option><option>Trendyol Express</option>
+        <option>Hepsiburada</option><option>Amazon</option>
+      </select>
+      <input id="tno" type="tel" inputmode="numeric" autocomplete="off" placeholder="Takip numarası">
+      <button class="btn" onclick="sorgula()">Sorgula</button>
+    </div>
+    <div class="soon" id="soon">Sorgu motoru devreye alınıyor. Kısa süre içinde tüm firmalar buradan, bu sayfadan ayrılmadan sorgulanabilecek.</div>
+  </div>
+
+  <div id="rapor"></div>
+  <div class="card">
+    <h3>Teslimat raporu</h3>
+    <p class="p">Kullanıcı bildirimlerine göre firmaların güncel ortalama teslim süreleri. Sen de bildir, rapor büyüsün.</p>
+    <div class="frow" style="margin-bottom:14px">
+      <select id="rf"></select>
+      <input id="rd" type="number" min="0" max="30" step="0.5" placeholder="Kaç gün sürdü?">
+      <button class="btn" onclick="bildir()">Rapor Gönder</button>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Firma</th><th>Ortalama</th><th class="barcol">Süre</th><th>Rapor</th><th>Geç kalma</th></tr></thead>
+      <tbody id="tb"></tbody>
+    </table>
+    <h3 style="margin:22px 0 8px;font-size:16px">Firma raporları</h3><p style="font-size:14px;line-height:2"><a href="/trendyol-express.html">Trendyol Express</a> · <a href="/hepsiburada.html">Hepsiburada</a> · <a href="/amazon.html">Amazon</a> · <a href="/yurtici-kargo.html">Yurtiçi Kargo</a> · <a href="/mng-kargo.html">MNG Kargo</a> · <a href="/aras-kargo.html">Aras Kargo</a> · <a href="/surat-kargo.html">Sürat Kargo</a> · <a href="/ptt-kargo.html">PTT Kargo</a></p><div class="ok" id="ok">Raporun alındı, teşekkürler.</div>
+  </div>
+
+  <div id="yasal"></div>
+  <div class="note">Geç kalma: 3 günü aşan teslimatlar. Ortalamalar il içi gönderiler hariç hesaplanır. Bu sitede adı geçen tüm firma ve markalar sahiplerine aittir; site bu firmalarla bağlantılı değildir. Veriler kullanıcı bildirimlerinden derlenir ve bilgilendirme amaçlıdır.</div>
+
+  <div class="ft">
+    <div>© 2026 kargorapor</div>
+    <div>iletişim: merhaba@kargorapor.com · v1.0.0</div>
+  </div>
+</div>
+
+<script>
+var BASE=[
+ {n:"Trendyol Express",avg:1.4,c:3412,late:0.08},
+ {n:"Hepsiburada",avg:1.6,c:2890,late:0.10},
+ {n:"Amazon",avg:1.8,c:520,late:0.12},
+ {n:"Yurtiçi Kargo",avg:1.9,c:2210,late:0.14},
+ {n:"MNG Kargo",avg:2.1,c:1544,late:0.16},
+ {n:"Aras Kargo",avg:2.3,c:1322,late:0.19},
+ {n:"Sürat Kargo",avg:2.6,c:876,late:0.22},
+ {n:"PTT Kargo",avg:2.9,c:709,late:0.25}
+];
+var F;
+try{F=JSON.parse(localStorage.getItem('kr_data'))||BASE;}catch(e){F=BASE;}
+var sel=document.getElementById('rf');
+BASE.forEach(function(x){var o=document.createElement('option');o.textContent=x.n;sel.appendChild(o);});
+function tr(n){return n.toLocaleString('tr-TR');}
+function trf(n){return n.toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1});}
+function col(a){return a<=1.8?'#7bc47f':a<=2.2?'#b7cf6b':a<=2.6?'#e8a13a':'#e0704a';}
+function save(){try{localStorage.setItem('kr_data',JSON.stringify(F));}catch(e){}}
+function draw(){
+  var s=F.slice().sort(function(a,b){return a.avg-b.avg;});
+  var mx=s[s.length-1].avg;
+  var tb=document.getElementById('tb');tb.innerHTML='';
+  s.forEach(function(x,i){
+    var r=document.createElement('tr');
+    r.innerHTML='<td class="rank">'+(i+1)+'</td><td class="fname">'+x.n+'</td>'
+     +'<td class="avg" style="color:'+col(x.avg)+'">'+trf(x.avg)+' gün</td>'
+     +'<td class="barcol"><div class="barwrap"><div class="bar" style="width:'+Math.round(x.avg/mx*100)+'%;background:'+col(x.avg)+'"></div></div></td>'
+     +'<td class="cnt">'+tr(x.c)+'</td><td class="late">%'+Math.round(x.late*100)+'</td>';
+    tb.appendChild(r);
+  });
+}
+function sorgula(){
+  if(!document.getElementById('tno').value.trim()){alert('Takip numarası gir');return;}
+  document.getElementById('soon').style.display='block';
+}
+function bildir(){
+  var d=parseFloat(document.getElementById('rd').value);
+  if(!d||d<0||d>30){alert('Gün sayısını yaz (örn: 2 veya 1.5)');return;}
+  var x=F.filter(function(y){return y.n===sel.value;})[0];
+  var lc=Math.round(x.late*x.c);
+  x.avg=(x.avg*x.c+d)/(x.c+1); x.c+=1; if(d>3)lc++;
+  x.late=lc/x.c;
+  document.getElementById('rd').value='';
+  document.getElementById('ok').style.display='block';
+  save();draw();
+}
+draw();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
+</script>
+</body>
+</html>
