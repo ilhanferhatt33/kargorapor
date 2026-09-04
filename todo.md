@@ -7,4 +7,4 @@
 - [x] Netlify güvenlik başlıklarını ve yönlendirmeleri yapılandır.
 - [x] Service worker önbellek sürümünü ve temizleme davranışını düzelt.
 - [x] Site haritası ve robots dosyasını yeni sayfalarla güncelle.
-- [ ] Yerel testleri çalıştır ve değişiklikleri ayrı dalda GitHub’a gönder.
+- [x] Yerel testleri çalıştır ve değişiklikleri ayrı dalda GitHub’a gönder.
