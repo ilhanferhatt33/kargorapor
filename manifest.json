@@ -1,1 +1,0 @@
-{"name": "KargoRapor", "short_name": "KargoRapor", "start_url": ".", "display": "standalone", "background_color": "#14161b", "theme_color": "#14161b", "description": "Kargo takip ve teslimat s\u00fcresi raporu", "icons": [{"src": "icon-192.png", "sizes": "192x192", "type": "image/png"}, {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"}]}
