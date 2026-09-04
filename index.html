@@ -96,6 +96,15 @@ tr:last-child td{border-bottom:none}
 </div>
 
 <script>
+var LINKS={
+"Yurtiçi Kargo":"https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula",
+"Aras Kargo":"https://www.araskargo.com.tr/tr/tracking",
+"MNG Kargo":"https://www.mngkargo.com.tr/gonderi-takip",
+"PTT Kargo":"https://gonderitakip.ptt.gov.tr/",
+"Sürat Kargo":"https://www.suratkargo.com.tr/KargoTakip",
+"Trendyol Express":"https://www.trendyol.com/hesabim/kargolarim",
+"Hepsiburada":"https://www.hepsiburada.com/siparislerim",
+"Amazon":"https://www.amazon.com.tr/gp/css/order-history"};
 var BASE=[
  {n:"Trendyol Express",avg:1.4,c:3412,late:0.08},
  {n:"Hepsiburada",avg:1.6,c:2890,late:0.10},
@@ -127,9 +136,18 @@ function draw(){
     tb.appendChild(r);
   });
 }
+function trf(n){return n.toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1});}
 function sorgula(){
-  if(!document.getElementById('tno').value.trim()){alert('Takip numarası gir');return;}
-  document.getElementById('soon').style.display='block';
+  var f=document.getElementById('firma').value;
+  var n=document.getElementById('tno').value.trim();
+  if(!n){alert('Takip numarası gir');return;}
+  var x=F.filter(function(y){return y.n===f;})[0];
+  var el=document.getElementById('soon');
+  el.style.display='block';
+  el.innerHTML='<b>'+f+'</b> gönderisi için takip no: <b>'+n+'</b><br><br>'
+   +'Bu firmanın ortalama teslim süresi: <b>'+trf(x.avg)+' gün</b> · geç kalma oranı <b>%'+Math.round(x.late*100)+'</b>'
+   +'<br><br><a class="btn" style="display:inline-block;margin:0 0 10px 0" href="'+LINKS[f]+'" target="_blank" rel="noopener">Resmi sitede takip et ↗</a>'
+   +'<br><span style="color:#8a919c;font-size:13px">Kargon teslim edilince, aşağıdaki rapor formuna kaç günde geldiğini yaz — tabloyu birlikte büyütelim.</span>';
 }
 function bildir(){
   var d=parseFloat(document.getElementById('rd').value);
