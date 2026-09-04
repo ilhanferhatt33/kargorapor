@@ -19,12 +19,13 @@ a{color:#e8a13a;text-decoration:none}
 .nav a{color:#8a919c;font-size:14px;margin-left:18px}
 .wrap{max-width:880px;margin:0 auto;padding:20px 16px 44px}
 .ptitle{font-size:21px;font-weight:800;letter-spacing:-.4px;margin:4px 0 2px}
-.psub{color:#8a919c;font-size:14px}
+.psub{color:#8a919c;font-size:14px;margin:0}
 .card{background:#191d24;border:1px solid #262b34;border-radius:12px;padding:18px;margin-top:16px}
 .card h3{margin:0 0 4px;font-size:16px}
 .card .p{color:#8a919c;font-size:13.5px;margin:0 0 14px}
 .frow{display:flex;gap:10px;flex-wrap:wrap}
-select,input{border:1px solid #30363f;border-radius:8px;padding:11px 12px;font-size:15px;background:#14161b;color:#e6e8ec}
+select,input{border:1px solid #30363f;border-radius:8px;padding:11px 12px;font-size:15px;background:#14161b;color:#e6e8ec;outline:none}
+select:focus,input:focus,.btn:focus-visible,a:focus-visible{outline:2px solid #e8a13a;outline-offset:3px}
 select{flex:2;min-width:160px}
 input{flex:1;min-width:140px}
 .btn{background:#e8a13a;color:#171310;border:none;border-radius:8px;padding:11px 20px;font-size:15px;font-weight:800;cursor:pointer}
@@ -42,8 +43,13 @@ tr:last-child td{border-bottom:none}
 .cnt,.late{color:#8a919c;font-size:13px}
 .ok{display:none;background:#14201a;border:1px solid #2c5b40;color:#7bc47f;border-radius:8px;padding:10px 14px;font-size:13.5px;margin-top:12px}
 .note{color:#5c646e;font-size:12.5px;margin-top:14px;line-height:1.65}
-.ft{border-top:1px solid #262b34;margin-top:26px;padding-top:14px;color:#5c646e;font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
-@media(max-width:620px){.barwrap,.barcol{display:none}}
+.ft{border-top:1px solid #262b34;margin-top:26px;padding-top:14px;color:#5c646e;font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.ftlinks{display:flex;flex-wrap:wrap;gap:8px 14px;width:100%;margin-bottom:6px}
+.ftlinks a{color:#8a919c}
+.tablewrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.privacy-note{margin-top:12px;color:#8a919c;font-size:12.5px;line-height:1.55}
+@media(max-width:620px){.barwrap,.barcol{display:none}.nav a{margin-left:12px}.card{padding:14px}table{min-width:500px}.btn,select,input{width:100%;box-sizing:border-box}.frow{display:grid;grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -54,20 +60,23 @@ tr:last-child td{border-bottom:none}
 
 <div class="wrap">
   <div id="takip"></div>
-  <div class="ptitle">Kargo Takip</div>
-  <div class="psub">Takip numaranı gir, gönderinin durumunu gör. Teslim edildiyse kaç günde geldiğini bildir.</div>
+  <h1 class="ptitle">Kargo Takip ve Teslimat Raporu</h1>
+  <p class="psub">Firmanı seç, ortalama teslimat performansını gör ve resmi takip sayfasına güvenle geç.</p>
 
   <div class="card">
     <div class="frow">
-      <select id="firma">
+      <label class="sr-only" for="firma">Kargo firması</label>
+      <select id="firma" aria-label="Kargo firması">
         <option>Yurtiçi Kargo</option><option>Aras Kargo</option><option>MNG Kargo</option>
         <option>PTT Kargo</option><option>Sürat Kargo</option><option>Trendyol Express</option>
         <option>Hepsiburada</option><option>Amazon</option>
       </select>
-      <input id="tno" type="tel" inputmode="numeric" autocomplete="off" placeholder="Takip numarası">
-      <button class="btn" onclick="sorgula()">Sorgula</button>
+      <label class="sr-only" for="tno">Takip numarası</label>
+      <input id="tno" type="text" inputmode="text" autocomplete="off" maxlength="40" placeholder="Takip numarası" aria-describedby="takip-yardim">
+      <button class="btn" type="button" onclick="sorgula()">Devam Et</button>
     </div>
-    <div class="soon" id="soon">Sorgu motoru devreye alınıyor. Kısa süre içinde tüm firmalar buradan, bu sayfadan ayrılmadan sorgulanabilecek.</div>
+    <div class="privacy-note" id="takip-yardim">Takip numarası bu sürümde sunucuya gönderilmez; yalnızca resmi firma sayfasına yönlendirme hazırlanır.</div>
+    <div class="soon" id="soon" role="status" aria-live="polite"></div>
   </div>
 
   <div id="rapor"></div>
@@ -75,23 +84,27 @@ tr:last-child td{border-bottom:none}
     <h3>Teslimat raporu</h3>
     <p class="p">Kullanıcı bildirimlerine göre firmaların güncel ortalama teslim süreleri. Sen de bildir, rapor büyüsün.</p>
     <div class="frow" style="margin-bottom:14px">
-      <select id="rf"></select>
-      <input id="rd" type="number" min="0" max="30" step="0.5" placeholder="Kaç gün sürdü?">
-      <button class="btn" onclick="bildir()">Rapor Gönder</button>
+      <label class="sr-only" for="rf">Raporlanacak firma</label>
+      <select id="rf" aria-label="Raporlanacak firma"></select>
+      <label class="sr-only" for="rd">Teslimat süresi</label>
+      <input id="rd" type="number" min="0.5" max="30" step="0.5" placeholder="Kaç gün sürdü?" aria-describedby="rapor-yardim">
+      <button class="btn" type="button" onclick="bildir()">Rapor Gönder</button>
     </div>
-    <table>
+    <p class="privacy-note" id="rapor-yardim">İlk sürümde rapor yalnızca bu cihazda saklanır; merkezi doğrulama sistemi henüz aktif değildir.</p>
+    <div class="tablewrap"><table>
       <thead><tr><th>#</th><th>Firma</th><th>Ortalama</th><th class="barcol">Süre</th><th>Rapor</th><th>Geç kalma</th></tr></thead>
       <tbody id="tb"></tbody>
-    </table>
-    <h3 style="margin:22px 0 8px;font-size:16px">Firma raporları</h3><p style="font-size:14px;line-height:2"><a href="/trendyol-express.html">Trendyol Express</a> · <a href="/hepsiburada.html">Hepsiburada</a> · <a href="/amazon.html">Amazon</a> · <a href="/yurtici-kargo.html">Yurtiçi Kargo</a> · <a href="/mng-kargo.html">MNG Kargo</a> · <a href="/aras-kargo.html">Aras Kargo</a> · <a href="/surat-kargo.html">Sürat Kargo</a> · <a href="/ptt-kargo.html">PTT Kargo</a></p><h3 style="margin:22px 0 8px;font-size:16px">Rehber yazıları</h3><p style="font-size:14px;line-height:2"><a href="/dagitima-cikti-ne-zaman-gelir.html">Kargo Dağıtıma Çıktı Ne Zaman Gelir</a> · <a href="/hafta-sonu-kargo-gelir-mi.html">Kargo Hafta Sonu Gelir mi</a> · <a href="/kargo-takip-numarasi-nasil-bulunur.html">Kargo Takip Numarası Nasıl Bulunur</a> · <a href="/kargo-kac-gunde-gelir.html">Kargo Kaç Günde Gelir</a></p><div class="ok" id="ok">Raporun alındı, teşekkürler.</div>
+    </table></div>
+    <h3 style="margin:22px 0 8px;font-size:16px">Firma raporları</h3><p style="font-size:14px;line-height:2"><a href="/trendyol-express.html">Trendyol Express</a> · <a href="/hepsiburada.html">Hepsiburada</a> · <a href="/amazon.html">Amazon</a> · <a href="/yurtici-kargo.html">Yurtiçi Kargo</a> · <a href="/mng-kargo.html">MNG Kargo</a> · <a href="/aras-kargo.html">Aras Kargo</a> · <a href="/surat-kargo.html">Sürat Kargo</a> · <a href="/ptt-kargo.html">PTT Kargo</a></p><h3 style="margin:22px 0 8px;font-size:16px">Rehber yazıları</h3><p style="font-size:14px;line-height:2"><a href="/dagitima-cikti-ne-zaman-gelir.html">Kargo Dağıtıma Çıktı Ne Zaman Gelir</a> · <a href="/hafta-sonu-kargo-gelir-mi.html">Kargo Hafta Sonu Gelir mi</a> · <a href="/kargo-takip-numarasi-nasil-bulunur.html">Kargo Takip Numarası Nasıl Bulunur</a> · <a href="/kargo-kac-gunde-gelir.html">Kargo Kaç Günde Gelir</a></p><div class="ok" id="ok" role="status" aria-live="polite">Rapor bu cihazda kaydedildi, teşekkürler.</div>
   </div>
 
   <div id="yasal"></div>
   <div class="note">Geç kalma: 3 günü aşan teslimatlar. Ortalamalar il içi gönderiler hariç hesaplanır. Bu sitede adı geçen tüm firma ve markalar sahiplerine aittir; site bu firmalarla bağlantılı değildir. Veriler kullanıcı bildirimlerinden derlenir ve bilgilendirme amaçlıdır.</div>
 
   <div class="ft">
+    <div class="ftlinks"><a href="/gizlilik-politikasi.html">Gizlilik</a><a href="/cerez-politikasi.html">Çerezler</a><a href="/kvkk-aydinlatma-metni.html">KVKK</a><a href="/kullanim-sartlari.html">Kullanım Şartları</a><a href="/iletisim.html">İletişim</a></div>
     <div>© 2026 kargorapor</div>
-    <div>v1.0.0</div>
+    <div>v1.1.0</div>
   </div>
 </div>
 
@@ -116,38 +129,46 @@ var BASE=[
  {n:"PTT Kargo",avg:2.9,c:709,late:0.25}
 ];
 var F;
-try{F=JSON.parse(localStorage.getItem('kr_data'))||BASE;}catch(e){F=BASE;}
+function validData(data){
+  return Array.isArray(data)&&data.length===BASE.length&&data.every(function(x){
+    return x&&typeof x.n==='string'&&Number.isFinite(x.avg)&&Number.isFinite(x.c)&&Number.isFinite(x.late)&&x.avg>0&&x.avg<=30&&x.c>=0&&x.late>=0&&x.late<=1;
+  });
+}
+try{var stored=JSON.parse(localStorage.getItem('kr_data'));F=validData(stored)?stored:BASE.map(function(x){return Object.assign({},x);});}catch(e){F=BASE.map(function(x){return Object.assign({},x);});}
 var sel=document.getElementById('rf');
 BASE.forEach(function(x){var o=document.createElement('option');o.textContent=x.n;sel.appendChild(o);});
 function tr(n){return n.toLocaleString('tr-TR');}
 function trf(n){return n.toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1});}
 function col(a){return a<=1.8?'#7bc47f':a<=2.2?'#b7cf6b':a<=2.6?'#e8a13a':'#e0704a';}
 function save(){try{localStorage.setItem('kr_data',JSON.stringify(F));}catch(e){}}
+function cell(text,className){var td=document.createElement('td');td.textContent=text;if(className)td.className=className;return td;}
 function draw(){
   var s=F.slice().sort(function(a,b){return a.avg-b.avg;});
   var mx=s[s.length-1].avg;
-  var tb=document.getElementById('tb');tb.innerHTML='';
+  var tb=document.getElementById('tb');tb.replaceChildren();
   s.forEach(function(x,i){
     var r=document.createElement('tr');
-    r.innerHTML='<td class="rank">'+(i+1)+'</td><td class="fname">'+x.n+'</td>'
-     +'<td class="avg" style="color:'+col(x.avg)+'">'+trf(x.avg)+' gün</td>'
-     +'<td class="barcol"><div class="barwrap"><div class="bar" style="width:'+Math.round(x.avg/mx*100)+'%;background:'+col(x.avg)+'"></div></div></td>'
-     +'<td class="cnt">'+tr(x.c)+'</td><td class="late">%'+Math.round(x.late*100)+'</td>';
+    r.appendChild(cell(String(i+1),'rank'));
+    r.appendChild(cell(x.n,'fname'));
+    var avg=cell(trf(x.avg)+' gün','avg');avg.style.color=col(x.avg);r.appendChild(avg);
+    var barCell=cell('','barcol');var wrap=document.createElement('div');wrap.className='barwrap';var bar=document.createElement('div');bar.className='bar';bar.style.width=Math.round(x.avg/mx*100)+'%';bar.style.background=col(x.avg);wrap.appendChild(bar);barCell.appendChild(wrap);r.appendChild(barCell);
+    r.appendChild(cell(tr(x.c),'cnt'));
+    r.appendChild(cell('%'+Math.round(x.late*100),'late'));
     tb.appendChild(r);
   });
 }
-function trf(n){return n.toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1});}
 function sorgula(){
   var f=document.getElementById('firma').value;
   var n=document.getElementById('tno').value.trim();
-  if(!n){alert('Takip numarası gir');return;}
+  if(n.length<5||n.length>40||!/^[A-Za-z0-9 _-]+$/.test(n)){alert('Geçerli bir takip numarası gir (5-40 harf/rakam).');return;}
   var x=F.filter(function(y){return y.n===f;})[0];
   var el=document.getElementById('soon');
   el.style.display='block';
-  el.innerHTML='<b>'+f+'</b> gönderisi için takip no: <b>'+n+'</b><br><br>'
-   +'Bu firmanın ortalama teslim süresi: <b>'+trf(x.avg)+' gün</b> · geç kalma oranı <b>%'+Math.round(x.late*100)+'</b>'
-   +'<br><br><a class="btn" style="display:inline-block;margin:0 0 10px 0" href="'+LINKS[f]+'" target="_blank" rel="noopener">Resmi sitede takip et ↗</a>'
-   +'<br><span style="color:#8a919c;font-size:13px">Kargon teslim edilince, aşağıdaki rapor formuna kaç günde geldiğini yaz — tabloyu birlikte büyütelim.</span>';
+  el.replaceChildren();
+  var title=document.createElement('p');title.style.margin='0 0 8px';title.append(document.createTextNode(f+' gönderisi için takip no: '));var strong=document.createElement('strong');strong.textContent=n;title.appendChild(strong);el.appendChild(title);
+  var stats=document.createElement('p');stats.style.margin='0 0 12px';stats.textContent='Ortalama teslim süresi: '+trf(x.avg)+' gün · geç kalma oranı %'+Math.round(x.late*100);el.appendChild(stats);
+  var link=document.createElement('a');link.className='btn';link.style.display='inline-block';link.href=LINKS[f];link.target='_blank';link.rel='noopener noreferrer';link.textContent='Resmi sitede takip et ↗';el.appendChild(link);
+  var help=document.createElement('p');help.style.cssText='color:#8a919c;font-size:13px;margin:12px 0 0';help.textContent='Gerçek gönderi durumu resmi kargo sayfasında görüntülenir.';el.appendChild(help);
 }
 function bildir(){
   var d=parseFloat(document.getElementById('rd').value);
